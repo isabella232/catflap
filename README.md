@@ -6,7 +6,7 @@ Atlantis supports the enforcement of merge approval requirements before Terrafor
 
 Unfortunately Squiz uses GitLab Community Edition, which does not support requiring merge approvals (https://gitlab.com/gitlab-org/gitlab-foss/-/issues/42096#note_152169378).
 
-** The Solution **
+**The Solution**
 
 To bridge this gap we can use a property of Atlantis Custom Workflows, which is that they terminate if a step returns a nonzero exit code.
 
