@@ -113,7 +113,7 @@ func main() {
   flag.StringVar(&user, "u", "", "The user running the current command.")
   flag.Parse()
   if author == "" || configpath == "" || user == "" {
-    fmt.Println("Usage: approvalcheck -c /path/to/config.yaml -a author -u user")
+    fmt.Printf("Usage: %s -c /path/to/config.yaml -a author -u user\n", os.Args[0])
     os.Exit(1)
   }
 
