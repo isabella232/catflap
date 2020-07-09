@@ -49,15 +49,33 @@ func isUserInGroups(user string, allowedLDAPGroups []string) bool {
     RootCAs:    rootCA,
     MinVersion: tls.VersionTLS12,
   }
+  // Connect to the LDAP server.
   ldapConn, err := ldap.DialTLS("tcp", fmt.Sprintf("%s:%d", myconfig.Ldapserver, myconfig.Ldapport), &tlsConfig)
+  // In the event of a connect failure, log the error but return False so that
+  // we handle the failure gracefully.
+  if err != nil {
+    log.Printf("Failed to connect to LDAP server: %v", err)
+    return false
+  }
+  // Bind to the LDAP server with the credentials from our config file.
   err = ldapConn.Bind(myconfig.Ldapbinddn, myconfig.Ldapbindpassword)
+  // In the event of a bind failure, log the error but return False so that we
+  // handle the failure gracefully.
   if err != nil {
-    panic(err)
+    log.Printf("Failed to bind to LDAP server: %v", err)
+    return false
   }
+  // Search for the specified user's LDAP groups.
   res, err := ldapConn.Search(ldap.NewSearchRequest(myconfig.Ldapbasedn, ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false, fmt.Sprintf("(memberUid=%s)", user), []string{"dn"}, nil))
+  // In the event of a search query failure, log the error but return False so
+  // that we handle the failure gracefully.
   if err != nil {
-    panic(err)
+    log.Printf("Failed to query LDAP server: %v", err)
+    return false
   }
+  // Now that we have the list of the user's LDAP groups, loop through them
+  // and check whether any of them matches any of the allowed LDAP groups. If
+  // so return True.
   for i := 0; i < len(res.Entries); i++ {
     for _, allowedLDAPGroup := range allowedLDAPGroups {
       if res.Entries[i].DN == allowedLDAPGroup {
