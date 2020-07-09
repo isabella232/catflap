@@ -10,7 +10,7 @@ Unfortunately GitLab CE does not support requiring merge approvals (https://gitl
 
 To bridge this gap we can use a property of Atlantis Custom Workflows, which is that they terminate if a step returns a nonzero exit code.
 
-We define two classes of users and groups, admins and approvers.
+We define two classes of users and groups in catflap's config file, admins and approvers.
 
 If a user is defined as an admin or belongs to an LDAP group defined as an admin, they are able to apply both their own and other people's Terraform changes.
 
