@@ -1,4 +1,4 @@
-The Cloudflare ATlantis FLow APprover allows 2-person approval in Atlantis with GitLab CE.
+The Custom ATlantis FLow APprover allows 2-person approval in Atlantis with GitLab CE.
 
 **The Problem**
 
