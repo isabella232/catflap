@@ -52,8 +52,8 @@ func isUserInGroups(user string, allowedLDAPGroups []string) bool {
   // should use LDAPS.)
   rootCA, err := x509.SystemCertPool()
   if err != nil {
-    log.Printf("Failed to load system CA certs: %v", err)
-    panic(err)
+    log.Printf("Failed to load system CA certs before connecting to LDAP: %v", err)
+    return false
   }
   if rootCA == nil {
     rootCA = x509.NewCertPool()
