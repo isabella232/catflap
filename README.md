@@ -1,10 +1,10 @@
-The Custom ATlantis FLow APprover allows 2-person approval in Atlantis with GitLab CE.
+The Custom ATlantis FLow APprover allows 2-person approval in Atlantis with GitLab Community Edition.
 
 **The Problem**
 
 Atlantis supports the enforcement of merge approval requirements before Terraform changes can be applied.
 
-Unfortunately GitLab Community Edition does not support requiring merge approvals (https://gitlab.com/gitlab-org/gitlab-foss/-/issues/42096#note_152169378).
+Unfortunately GitLab CE does not support requiring merge approvals (https://gitlab.com/gitlab-org/gitlab-foss/-/issues/42096#note_152169378).
 
 **The Solution**
 
