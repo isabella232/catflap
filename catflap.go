@@ -20,6 +20,7 @@ type config struct {
   Ldapbasedn string
   Ldapbinddn string
   Ldapbindpassword string
+  Ldapgroupquery string
   Ldapport int
   Ldapserver string
 }
@@ -79,7 +80,7 @@ func isUserInGroups(user string, allowedLDAPGroups []string) bool {
     return false
   }
   // Search for the specified user's LDAP groups.
-  res, err := ldapConn.Search(ldap.NewSearchRequest(myconfig.Ldapbasedn, ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false, fmt.Sprintf("(memberUid=%s)", user), []string{"dn"}, nil))
+  res, err := ldapConn.Search(ldap.NewSearchRequest(myconfig.Ldapbasedn, ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false, fmt.Sprintf(myconfig.Ldapgroupquery, user), []string{"dn"}, nil))
   // In the event of a search query failure, log the error but return False so
   // that we handle the failure gracefully.
   if err != nil {
