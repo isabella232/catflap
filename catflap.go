@@ -36,6 +36,12 @@ func isUserInList(user string, allowedUsers []string) bool {
 }
 
 func isUserInGroups(user string, allowedLDAPGroups []string) bool {
+  // If we don't have an LDAP server then just return False.
+  if myconfig.Ldapserver == "" {
+    log.Printf("No LDAP server defined, skipping LDAP group check.")
+    return false
+  }
+
   rootCA, err := x509.SystemCertPool()
   if err != nil {
     log.Printf("Failed to load system CA certs: %v", err)
@@ -107,6 +113,10 @@ func main() {
   err = yaml.Unmarshal(configfile, &myconfig)
   if err != nil {
     panic(err)
+  }
+  // The default LDAP port is 636.
+  if myconfig.Ldapport == 0 {
+    myconfig.Ldapport = 636
   }
 
   // Admin users can approve anything.
