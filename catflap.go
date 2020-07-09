@@ -51,19 +51,23 @@ func isUserInGroups(user string, allowedLDAPGroups []string) bool {
   // Initialise TLS. (We do not support unencrypted LDAP connections; everyone
   // should use LDAPS.)
   rootCA, err := x509.SystemCertPool()
+  // In the event of a failure to load the system CA certificates, log the
+  // error but return False so that we handle the failure gracefully.
   if err != nil {
     log.Printf("Failed to load system CA certs before connecting to LDAP: %v", err)
     return false
   }
+  // If there are no root CA certificates, use an empty CA pool.
   if rootCA == nil {
     rootCA = x509.NewCertPool()
   }
+  // Create a TLS configuration for our LDAPS connection.
   tlsConfig := tls.Config{
     ServerName: myconfig.Ldapserver,
     RootCAs:    rootCA,
     MinVersion: tls.VersionTLS12,
   }
-  // Connect to the LDAP server.
+  // Connect to the LDAP server using TLS.
   ldapConn, err := ldap.DialTLS("tcp", fmt.Sprintf("%s:%d", myconfig.Ldapserver, myconfig.Ldapport), &tlsConfig)
   // In the event of a connect failure, log the error but return False so that
   // we handle the failure gracefully.
