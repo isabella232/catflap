@@ -4,7 +4,7 @@ The Custom ATlantis FLow APprover allows 2-person approval in Atlantis with GitL
 
 Atlantis supports the enforcement of merge approval requirements before Terraform changes can be applied.
 
-Unfortunately Squiz uses GitLab Community Edition, which does not support requiring merge approvals (https://gitlab.com/gitlab-org/gitlab-foss/-/issues/42096#note_152169378).
+Unfortunately GitLab Community Edition does not support requiring merge approvals (https://gitlab.com/gitlab-org/gitlab-foss/-/issues/42096#note_152169378).
 
 **The Solution**
 
