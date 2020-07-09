@@ -24,8 +24,11 @@ type config struct {
   Ldapserver string
 }
 
+// Our configuration file applies globally, so declare it globally.
 var myconfig config
 
+// isUserInList returns True if a specified username appears in a list of
+// allowed users, otherwise it returns False.
 func isUserInList(user string, allowedUsers []string) bool {
   for _, allowedUser := range allowedUsers {
     if user == allowedUser {
@@ -35,13 +38,17 @@ func isUserInList(user string, allowedUsers []string) bool {
   return false
 }
 
+// isUserInGroups connects to the LDAP server specified in our configuration
+// and checks whether any of the user's groups are in a list of allowed
+// groups. If so it returns True, otherwise it returns False.
 func isUserInGroups(user string, allowedLDAPGroups []string) bool {
   // If we don't have an LDAP server then just return False.
   if myconfig.Ldapserver == "" {
     log.Printf("No LDAP server defined, skipping LDAP group check.")
     return false
   }
-
+  // Initialise TLS. (We do not support unencrypted LDAP connections; everyone
+  // should use LDAPS.)
   rootCA, err := x509.SystemCertPool()
   if err != nil {
     log.Printf("Failed to load system CA certs: %v", err)
@@ -93,10 +100,14 @@ func isUserInGroups(user string, allowedLDAPGroups []string) bool {
 }
 
 func main() {
+  // Read our command-line arguments. We take three arguments; the path to our
+  // config file, the change request author and the user trying to apply the
+  // change. The latter two should be passed in from Atlantis, using the
+  // $PULL_AUTHOR and $USER_NAME environment variables:
+  // https://www.runatlantis.io/docs/custom-workflows.html#reference
   var author string
   var configpath string
   var user string
-
   flag.StringVar(&author, "a", "", "The user who authored the change request.")
   flag.StringVar(&configpath, "c", "", "The path to the config file.")
   flag.StringVar(&user, "u", "", "The user running the current command.")
@@ -106,6 +117,8 @@ func main() {
     os.Exit(1)
   }
 
+  // Read and parse our configuration file. If there's an error, panic; we
+  // can't do anything without valid configuration.
   configfile, err := ioutil.ReadFile(configpath)
   if err != nil {
     panic(err)
@@ -118,6 +131,13 @@ func main() {
   if myconfig.Ldapport == 0 {
     myconfig.Ldapport = 636
   }
+
+  // We now check approvals and return either 0 (allowing the Atlantis custom
+  // workflows to proceed) or 1 (halting the Atlantis custom workflow with an
+  // error).
+  // This is the current recommended approach as per:
+  // https://github.com/runatlantis/atlantis/issues/438
+  // https://github.com/runatlantis/atlantis/issues/764
 
   // Admin users can approve anything.
   if isUserInList(user, myconfig.Adminusernames) || isUserInGroups(user, myconfig.Adminldapgroups) {
@@ -132,6 +152,7 @@ func main() {
       fmt.Printf("%s is a valid approver, but cannot self-approve.\n", user)
       os.Exit(1)
     }
+  // If they weren't a valid admin user or approver, they don't have permissions.
   } else {
       fmt.Printf("%s is not a valid approver.\n", user)
       os.Exit(1)
